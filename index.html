@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Compensation Calculator</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <!-- Select2 for searchable dropdowns -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -105,6 +109,42 @@
         select:focus {
             outline: none;
             border-color: #3b82f6;
+        }
+
+        /* Select2 custom styling */
+        .select2-container--default .select2-selection--single {
+            height: 44px;
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 40px;
+            padding-left: 10px;
+            font-size: 0.95rem;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 42px;
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: #3b82f6;
+        }
+
+        .select2-dropdown {
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+        }
+
+        .select2-search--dropdown .select2-search__field {
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+            padding: 8px;
+        }
+
+        .select2-container {
+            width: 100% !important;
         }
 
         .summary-grid {
@@ -235,6 +275,11 @@
             h1 {
                 font-size: 1.5rem;
             }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -474,6 +519,35 @@
             </div>
         </div>
 
+        <!-- AI Compensation Analysis -->
+        <div class="chart-container">
+            <div class="section-header" onclick="toggleSection('aiAnalysisSection')">
+                <h2>🤖 AI Compensation Analysis</h2>
+                <span class="collapse-icon" id="aiAnalysisIcon">▼</span>
+            </div>
+            <div class="collapsible-content" id="aiAnalysisSection">
+                <p style="font-size: 0.9rem; color: #6b7280; margin-bottom: 15px;">
+                    Get AI-powered insights on your compensation package compared to market data
+                </p>
+                
+                <button 
+                    id="analyzeButton" 
+                    onclick="analyzeCompensation()" 
+                    style="width: 100%; padding: 12px 20px; background: #3b82f6; color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-bottom: 15px;">
+                    Analyze My Compensation
+                </button>
+                
+                <div id="analysisResult" style="display: none; background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 8px; padding: 20px;">
+                    <div id="analysisContent"></div>
+                </div>
+                
+                <div id="analysisLoading" style="display: none; text-align: center; padding: 20px;">
+                    <div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #e5e7eb; border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p style="margin-top: 10px; color: #6b7280;">Analyzing your compensation...</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Levels.fyi Comparison -->
         <div class="chart-container">
             <div class="section-header" onclick="toggleSection('levelsFyiSection')">
@@ -484,8 +558,138 @@
                 <p style="font-size: 0.9rem; color: #6b7280; margin-bottom: 15px;">
                     Use the interactive chart below to compare your compensation with market data from levels.fyi
                 </p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <label for="levelsCompany" style="display: block; font-weight: 500; color: #374151; margin-bottom: 8px; font-size: 0.9rem;">Company</label>
+                        <select id="levelsCompany" style="width: 100%; padding: 10px; border: 2px solid #d1d5db; border-radius: 6px; font-size: 0.9rem;">
+                            <option value="Meta">Meta</option>
+                            <option value="Google">Google</option>
+                            <option value="Microsoft">Microsoft</option>
+                            <option value="Amazon">Amazon</option>
+                            <option value="Apple">Apple</option>
+                            <option value="Netflix">Netflix</option>
+                            <option value="Uber">Uber</option>
+                            <option value="Lyft">Lyft</option>
+                            <option value="Airbnb">Airbnb</option>
+                            <option value="Dropbox">Dropbox</option>
+                            <option value="Yahoo">Yahoo</option>
+                            <option value="Pinterest">Pinterest</option>
+                            <option value="PayPal">PayPal</option>
+                            <option value="Intel">Intel</option>
+                            <option value="IBM">IBM</option>
+                            <option value="Salesforce">Salesforce</option>
+                            <option value="Cisco">Cisco</option>
+                            <option value="Workday">Workday</option>
+                            <option value="LinkedIn">LinkedIn</option>
+                            <option value="eBay">eBay</option>
+                            <option value="Oracle">Oracle</option>
+                            <option value="Intuit">Intuit</option>
+                            <option value="Qualcomm">Qualcomm</option>
+                            <option value="VMware">VMware</option>
+                            <option value="Square">Square</option>
+                            <option value="DoorDash">DoorDash</option>
+                            <option value="Snap">Snap</option>
+                            <option value="Comcast">Comcast</option>
+                            <option value="Stripe">Stripe</option>
+                            <option value="Quora">Quora</option>
+                            <option value="Yelp">Yelp</option>
+                            <option value="Adobe">Adobe</option>
+                            <option value="Nextdoor">Nextdoor</option>
+                            <option value="Spotify">Spotify</option>
+                            <option value="Twitter">Twitter</option>
+                            <option value="Zillow">Zillow</option>
+                            <option value="Tesla">Tesla</option>
+                            <option value="Groupon">Groupon</option>
+                            <option value="SAP">SAP</option>
+                            <option value="Indeed">Indeed</option>
+                            <option value="Symantec">Symantec</option>
+                            <option value="NetApp">NetApp</option>
+                            <option value="Waymo">Waymo</option>
+                            <option value="Nvidia">Nvidia</option>
+                            <option value="AMD">AMD</option>
+                            <option value="Snowflake">Snowflake</option>
+                            <option value="Databricks">Databricks</option>
+                            <option value="Atlassian">Atlassian</option>
+                            <option value="Twilio">Twilio</option>
+                            <option value="GitHub">GitHub</option>
+                            <option value="GitLab">GitLab</option>
+                            <option value="Asana">Asana</option>
+                            <option value="Notion">Notion</option>
+                            <option value="Figma">Figma</option>
+                            <option value="Slack">Slack</option>
+                            <option value="Zoom">Zoom</option>
+                            <option value="Coinbase">Coinbase</option>
+                            <option value="Robinhood">Robinhood</option>
+                            <option value="Affirm">Affirm</option>
+                            <option value="Shopify">Shopify</option>
+                            <option value="Roblox">Roblox</option>
+                            <option value="Unity">Unity</option>
+                            <option value="Epic Games">Epic Games</option>
+                            <option value="Reddit">Reddit</option>
+                            <option value="Discord">Discord</option>
+                            <option value="Instacart">Instacart</option>
+                            <option value="Grubhub">Grubhub</option>
+                            <option value="Expedia">Expedia</option>
+                            <option value="Booking.com">Booking.com</option>
+                            <option value="Box">Box</option>
+                            <option value="Cloudflare">Cloudflare</option>
+                            <option value="Datadog">Datadog</option>
+                            <option value="Splunk">Splunk</option>
+                            <option value="MongoDB">MongoDB</option>
+                            <option value="Elastic">Elastic</option>
+                            <option value="Palantir">Palantir</option>
+                            <option value="Cruise">Cruise</option>
+                            <option value="Rivian">Rivian</option>
+                            <option value="Bloomberg">Bloomberg</option>
+                            <option value="Citadel">Citadel</option>
+                            <option value="Two Sigma">Two Sigma</option>
+                            <option value="Jane Street">Jane Street</option>
+                            <option value="Goldman Sachs">Goldman Sachs</option>
+                            <option value="JPMorgan">JPMorgan</option>
+                            <option value="Morgan Stanley">Morgan Stanley</option>
+                            <option value="Palo Alto Networks">Palo Alto Networks</option>
+                            <option value="Crusoe">Crusoe</option>
+                            <option value="San Jose Sharks">San Jose Sharks</option>
+                            <option value="Ramp">Ramp</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="levelsTrack" style="display: block; font-weight: 500; color: #374151; margin-bottom: 8px; font-size: 0.9rem;">Job Track</label>
+                        <select id="levelsTrack" style="width: 100%; padding: 10px; border: 2px solid #d1d5db; border-radius: 6px; font-size: 0.9rem;">
+                            <option value="Software Engineer">Software Engineer</option>
+                            <option value="Product Manager">Product Manager</option>
+                            <option value="Data Scientist">Data Scientist</option>
+                            <option value="Machine Learning Engineer">Machine Learning Engineer</option>
+                            <option value="Software Engineering Manager">Software Engineering Manager</option>
+                            <option value="Product Designer">Product Designer</option>
+                            <option value="Data Engineer">Data Engineer</option>
+                            <option value="Technical Program Manager">Technical Program Manager</option>
+                            <option value="Solutions Architect">Solutions Architect</option>
+                            <option value="DevOps Engineer">DevOps Engineer</option>
+                            <option value="Security Engineer">Security Engineer</option>
+                            <option value="QA Engineer">QA Engineer</option>
+                            <option value="Mechanical Engineer">Mechanical Engineer</option>
+                            <option value="Hardware Engineer">Hardware Engineer</option>
+                            <option value="Recruiter">Recruiter</option>
+                            <option value="Customer Success">Customer Success</option>
+                            <option value="Sales">Sales</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Legal">Legal</option>
+                            <option value="General Counsel">General Counsel</option>
+                            <option value="Operations">Operations</option>
+                            <option value="Business Analyst">Business Analyst</option>
+                            <option value="Account Manager">Account Manager</option>
+                            <option value="Product Marketing Manager">Product Marketing Manager</option>
+                        </select>
+                    </div>
+                </div>
+                
                 <iframe 
-                    src="https://www.levels.fyi/charts_embed.html?company=Google&track=Software%20Engineer&hide_selector=false" 
+                    id="levelsIframe"
+                    src="https://www.levels.fyi/charts_embed.html?company=Meta&track=Software%20Engineer&hide_selector=true" 
                     height="500" 
                     style="width: 100%; border: 1px solid #e5e7eb; border-radius: 8px;" 
                     frameborder="0" 
@@ -954,10 +1158,155 @@
             icon.classList.toggle('collapsed');
         }
 
+        // Update levels.fyi iframe based on dropdown selections
+        function updateLevelsIframe() {
+            const company = document.getElementById('levelsCompany').value;
+            const track = document.getElementById('levelsTrack').value;
+            const iframe = document.getElementById('levelsIframe');
+            
+            // URL encode the track parameter
+            const encodedTrack = encodeURIComponent(track);
+            
+            iframe.src = `https://www.levels.fyi/charts_embed.html?company=${company}&track=${encodedTrack}&hide_selector=true`;
+        }
+
+        // Analyze compensation using Claude API
+        async function analyzeCompensation() {
+            const button = document.getElementById('analyzeButton');
+            const loading = document.getElementById('analysisLoading');
+            const result = document.getElementById('analysisResult');
+            const content = document.getElementById('analysisContent');
+            
+            // Get user's compensation data
+            const data = calculateComp();
+            const company = document.getElementById('levelsCompany').value;
+            const track = document.getElementById('levelsTrack').value;
+            const baseSalary = document.getElementById('baseSalary').value;
+            const bonusPercent = document.getElementById('bonusPercent').value;
+            const initialGrant = document.getElementById('initialGrant').value;
+            const stockPrice = document.getElementById('stockYear1').value;
+            const vestingSchedule = document.getElementById('vestingSchedule').value === 'front' ? '40/30/20/10' : '25/25/25/25';
+            
+            // Calculate total comp values
+            const year1TC = data[0].totalComp;
+            const year4TC = data[3].totalComp;
+            const avgTC = data.reduce((sum, y) => sum + y.totalComp, 0) / 4;
+            
+            // Show loading state
+            button.disabled = true;
+            button.style.opacity = '0.6';
+            button.textContent = 'Analyzing...';
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            
+            try {
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 1000,
+                        messages: [{
+                            role: 'user',
+                            content: `You are a compensation expert analyzing a job offer. Please analyze this compensation package and provide insights.
+
+**Job Details:**
+- Company: ${company}
+- Role: ${track}
+
+**Compensation Package:**
+- Base Salary: $${Number(baseSalary).toLocaleString()}
+- Annual Bonus: ${bonusPercent}%
+- RSU Grant: ${initialGrant} shares at $${stockPrice}/share
+- Vesting Schedule: ${vestingSchedule}
+
+**Total Compensation:**
+- Year 1 TC: $${year1TC.toLocaleString()}
+- Year 4 TC: $${year4TC.toLocaleString()}
+- 4-Year Average TC: $${Math.round(avgTC).toLocaleString()}
+
+Please provide a concise analysis (3-4 paragraphs) covering:
+1. How this package compares to typical ${track} compensation at ${company} and similar companies (if you have knowledge of typical ranges)
+2. Estimated percentile ranking (if you can reasonably estimate based on the company/role)
+3. Strengths and weaknesses of this specific package
+4. 2-3 specific, actionable negotiation recommendations
+
+Be direct and specific. Use your knowledge of typical compensation ranges for this role/company. If you don't have specific data, acknowledge that and provide general guidance based on the role level and company tier.`
+                        }]
+                    })
+                });
+
+                const apiData = await response.json();
+                
+                if (apiData.content && apiData.content[0] && apiData.content[0].text) {
+                    const analysis = apiData.content[0].text;
+                    
+                    // Format the analysis with nice styling
+                    content.innerHTML = `
+                        <div style="line-height: 1.8; color: #374151;">
+                            ${analysis.split('\n\n').map(para => `<p style="margin-bottom: 15px;">${para}</p>`).join('')}
+                        </div>
+                        <div style="margin-top: 20px; padding: 15px; background: #dbeafe; border-left: 4px solid #3b82f6; border-radius: 4px;">
+                            <p style="font-size: 0.85rem; color: #1e40af; margin: 0;">
+                                <strong>Note:</strong> This analysis is based on AI knowledge and general market data. For the most accurate comparison, review the levels.fyi data below and consult with a compensation specialist.
+                            </p>
+                        </div>
+                    `;
+                    
+                    result.style.display = 'block';
+                } else {
+                    throw new Error('Unexpected API response format');
+                }
+                
+            } catch (error) {
+                console.error('Analysis error:', error);
+                content.innerHTML = `
+                    <div style="color: #dc2626; line-height: 1.6;">
+                        <p><strong>Analysis Error</strong></p>
+                        <p>Unable to generate compensation analysis. Please check your inputs and try again.</p>
+                        <p style="font-size: 0.85rem; color: #6b7280; margin-top: 10px;">Error: ${error.message}</p>
+                    </div>
+                `;
+                result.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+                button.disabled = false;
+                button.style.opacity = '1';
+                button.textContent = 'Analyze My Compensation';
+            }
+        }
+
         // Initialize
         loadInputs();
         updateFederalTaxBrackets(); // Populate tax brackets on load
         setupInputListeners();
+        
+        // Initialize Select2 for searchable dropdowns
+        $(document).ready(function() {
+            $('#levelsCompany').select2({
+                placeholder: 'Search for a company...',
+                allowClear: false,
+                width: '100%'
+            });
+            
+            $('#levelsTrack').select2({
+                placeholder: 'Search for a job track...',
+                allowClear: false,
+                width: '100%'
+            });
+            
+            // Update iframe when Select2 dropdowns change
+            $('#levelsCompany').on('change', function() {
+                updateLevelsIframe();
+            });
+            
+            $('#levelsTrack').on('change', function() {
+                updateLevelsIframe();
+            });
+        });
+        
         updateDisplay();
     </script>
 </body>
