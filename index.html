@@ -145,6 +145,7 @@
 
         table {
             width: 100%;
+            min-width: 700px;
             border-collapse: collapse;
             margin-top: 10px;
             font-size: 0.9rem;
@@ -184,6 +185,49 @@
 
         .note strong {
             color: #1e3a8a;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            padding: 5px 0;
+        }
+
+        .section-header:hover h2 {
+            color: #3b82f6;
+        }
+
+        .collapse-icon {
+            font-size: 1.5rem;
+            color: #6b7280;
+            transition: transform 0.3s ease;
+        }
+
+        .collapse-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .collapsible-content {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .collapsible-content.collapsed {
+            max-height: 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -345,50 +389,72 @@
 
         <!-- Stacked Bar Chart -->
         <div class="chart-container">
-            <h2>Compensation Breakdown by Year</h2>
-            <canvas id="stackedChart"></canvas>
+            <div class="section-header" onclick="toggleSection('stackedChartSection')">
+                <h2>Compensation Breakdown by Year</h2>
+                <span class="collapse-icon" id="stackedChartIcon">▼</span>
+            </div>
+            <div class="collapsible-content" id="stackedChartSection">
+                <canvas id="stackedChart"></canvas>
+            </div>
         </div>
 
         <!-- Line Chart -->
         <div class="chart-container">
-            <h2>Total Compensation Trend</h2>
-            <canvas id="lineChart"></canvas>
+            <div class="section-header" onclick="toggleSection('lineChartSection')">
+                <h2>Total Compensation Trend</h2>
+                <span class="collapse-icon" id="lineChartIcon">▼</span>
+            </div>
+            <div class="collapsible-content" id="lineChartSection">
+                <canvas id="lineChart"></canvas>
+            </div>
         </div>
 
         <!-- Detailed Table -->
         <div class="chart-container">
-            <h2>Detailed Breakdown</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Year</th>
-                        <th class="text-right">Base Salary</th>
-                        <th class="text-right">Bonus</th>
-                        <th class="text-right">Initial RSUs</th>
-                        <th class="text-right">Refresher RSUs</th>
-                        <th class="text-right">Stock Price</th>
-                        <th class="text-right">Stock Value</th>
-                        <th class="text-right"><strong>Total Comp</strong></th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                </tbody>
-            </table>
+            <div class="section-header" onclick="toggleSection('detailedTableSection')">
+                <h2>Detailed Breakdown</h2>
+                <span class="collapse-icon" id="detailedTableIcon">▼</span>
+            </div>
+            <div class="collapsible-content" id="detailedTableSection">
+                <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th class="text-right">Base Salary</th>
+                                <th class="text-right">Bonus</th>
+                                <th class="text-right">Initial RSUs</th>
+                                <th class="text-right">Refresher RSUs</th>
+                                <th class="text-right">Stock Price</th>
+                                <th class="text-right">Stock Value</th>
+                                <th class="text-right"><strong>Total Comp</strong></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <!-- Levels.fyi Comparison -->
         <div class="chart-container">
-            <h2>📊 Compare with Market Data</h2>
-            <p style="font-size: 0.9rem; color: #6b7280; margin-bottom: 15px;">
-                Use the interactive chart below to compare your compensation with market data from levels.fyi
-            </p>
-            <iframe 
-                src="https://www.levels.fyi/charts_embed.html?company=Google&track=Software%20Engineer&hide_selector=false" 
-                height="500" 
-                style="width: 100%; border: 1px solid #e5e7eb; border-radius: 8px;" 
-                frameborder="0" 
-                scrolling="auto">
-            </iframe>
+            <div class="section-header" onclick="toggleSection('levelsFyiSection')">
+                <h2>📊 Compare with Market Data</h2>
+                <span class="collapse-icon" id="levelsFyiIcon">▼</span>
+            </div>
+            <div class="collapsible-content" id="levelsFyiSection">
+                <p style="font-size: 0.9rem; color: #6b7280; margin-bottom: 15px;">
+                    Use the interactive chart below to compare your compensation with market data from levels.fyi
+                </p>
+                <iframe 
+                    src="https://www.levels.fyi/charts_embed.html?company=Google&track=Software%20Engineer&hide_selector=false" 
+                    height="500" 
+                    style="width: 100%; border: 1px solid #e5e7eb; border-radius: 8px;" 
+                    frameborder="0" 
+                    scrolling="auto">
+                </iframe>
+            </div>
         </div>
 
         <div class="note">
@@ -768,6 +834,15 @@
                 saveInputs();
                 updateDisplay();
             });
+        }
+
+        // Toggle collapsible sections
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const icon = document.getElementById(sectionId.replace('Section', 'Icon'));
+            
+            section.classList.toggle('collapsed');
+            icon.classList.toggle('collapsed');
         }
 
         // Initialize
