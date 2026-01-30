@@ -34,9 +34,9 @@ module.exports = async (req, res) => {
 
     console.log('Calling Gemini API...');
 
-    // Call Gemini API
+    // Call Gemini API - using gemini-1.5-flash (stable, widely available)
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: {
@@ -59,8 +59,16 @@ module.exports = async (req, res) => {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Gemini API error:', data);
-      throw new Error(data.error?.message || 'API request failed');
+      console.error('Gemini API error response:', {
+        status: response.status,
+        statusText: response.statusText,
+        data: data
+      });
+      return res.status(response.status).json({ 
+        error: data.error?.message || 'Gemini API request failed',
+        details: data,
+        apiStatus: response.status
+      });
     }
 
     console.log('Gemini API success');
