@@ -423,6 +423,22 @@
             </div>
         </div>
 
+        <!-- Mode Toggle -->
+        <div style="display: flex; justify-content: center; margin-bottom: 30px;">
+            <div style="background: var(--bg-secondary); border-radius: 8px; padding: 4px; display: inline-flex; gap: 4px;">
+                <button id="rsuModeBtn" onclick="switchMode('rsu')"
+                    style="padding: 10px 24px; background: #8feeff; color: #0a0a0a; border: none; border-radius: 6px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.2s;">
+                    RSU Calculator
+                </button>
+                <button id="isoModeBtn" onclick="switchMode('iso')"
+                    style="padding: 10px 24px; background: transparent; color: var(--text-primary); border: none; border-radius: 6px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.2s;">
+                    ISO Calculator
+                </button>
+            </div>
+        </div>
+
+        <!-- RSU Calculator Content -->
+        <div id="rsuCalculator">
         <div class="inputs-grid-four">
             <!-- Cash Compensation -->
             <div class="input-section">
@@ -834,9 +850,296 @@
             <strong>💾 Auto-Save:</strong> Your inputs are automatically saved in your browser and will persist when you
             refresh the page.
         </div>
+        </div>
+        <!-- End RSU Calculator -->
+
+        <!-- ISO Calculator Content -->
+        <div id="isoCalculator" style="display: none;">
+            <div class="inputs-grid-four">
+                <!-- Cash Compensation -->
+                <div class="input-section">
+                    <div class="section-header" onclick="toggleSection('isoCashCompSection')">
+                        <h2>Cash Compensation</h2>
+                        <span class="collapse-icon" id="isoCashCompIcon">▼</span>
+                    </div>
+                    <div class="collapsible-content" id="isoCashCompSection">
+                        <p style="font-size: 0.85rem; margin-bottom: 15px;">Auto-applies 3% annual raise
+                            each year</p>
+                        <div class="input-group">
+                            <label for="isoBaseSalary">Base Salary ($)</label>
+                            <input type="number" id="isoBaseSalary" min="0" step="1000" placeholder="0">
+                            <p style="font-size: 0.75rem; margin-top: 5px;">Applied to base salary each year
+                            </p>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="isoBonusPercent">Bonus (%)</label>
+                            <input type="number" id="isoBonusPercent" min="0" max="200" step="1" placeholder="0">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="isoSignOnBonus">Sign-On Bonus ($)</label>
+                            <input type="number" id="isoSignOnBonus" min="0" step="1000" placeholder="0">
+                            <p style="font-size: 0.75rem; margin-top: 5px;">One-time payment in Year 1</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ISO Basics -->
+                <div class="input-section">
+                    <div class="section-header" onclick="toggleSection('isoBasicsSection')">
+                        <h2>ISO Basics</h2>
+                        <span class="collapse-icon" id="isoBasicsIcon">▼</span>
+                    </div>
+                    <div class="collapsible-content" id="isoBasicsSection">
+                        <div class="input-group">
+                            <label for="numberOfOptions">Number of Options</label>
+                            <input type="number" id="numberOfOptions" min="0" step="100" placeholder="0">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="strikePrice">Strike Price ($)</label>
+                            <input type="number" id="strikePrice" min="0" step="0.01" placeholder="0">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="assumedSharePrice">Assumed Future Share Price ($)</label>
+                            <input type="number" id="assumedSharePrice" min="0" step="0.01" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vesting Schedule -->
+                <div class="input-section">
+                    <div class="section-header" onclick="toggleSection('isoVestingSection')">
+                        <h2>Vesting Schedule</h2>
+                        <span class="collapse-icon" id="isoVestingIcon">▼</span>
+                    </div>
+                    <div class="collapsible-content" id="isoVestingSection">
+                        <div class="input-group">
+                            <label for="hasCliff">1-Year Cliff</label>
+                            <select id="hasCliff"
+                                style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 6px; font-size: 0.95rem; background: var(--bg-card); color: var(--text-primary);">
+                                <option value="yes">Yes (25% vests at 1 year)</option>
+                                <option value="no">No (Monthly vesting from start)</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="vestingPeriod">Total Vesting Period (Years)</label>
+                            <input type="number" id="vestingPeriod" min="1" max="10" step="1" value="4">
+                            <p style="font-size: 0.75rem; margin-top: 5px;">Standard is 4 years</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exercise Timing -->
+                <div class="input-section">
+                    <div class="section-header" onclick="toggleSection('isoExerciseSection')">
+                        <h2>Exercise & Tax</h2>
+                        <span class="collapse-icon" id="isoExerciseIcon">▼</span>
+                    </div>
+                    <div class="collapsible-content" id="isoExerciseSection">
+                        <div class="input-group">
+                            <label for="exerciseTiming">Exercise Timing</label>
+                            <select id="exerciseTiming"
+                                style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 6px; font-size: 0.95rem; background: var(--bg-card); color: var(--text-primary);">
+                                <option value="at_vest">At Vest (as options vest)</option>
+                                <option value="at_exit">At Exit (all at once)</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="taxProfile">Tax Profile</label>
+                            <select id="taxProfile" onchange="applyTaxProfile()"
+                                style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 6px; font-size: 0.95rem; background: var(--bg-card); color: var(--text-primary);">
+                                <option value="">Select a profile...</option>
+                                <option value="ca_high">Single, CA high earner → 40%</option>
+                                <option value="ca_married">Married, CA → 37%</option>
+                                <option value="no_income_tax">No-income-tax state → 32%</option>
+                                <option value="custom">Custom → unlocks manual entry</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="marginalTaxRate">Marginal Tax Rate  % (on ISO gains)</label>
+                            <input type="number" id="marginalTaxRate" min="0" max="100" step="0.1" placeholder="37" disabled>
+                            <p style="font-size: 0.75rem; margin-top: 5px;">Estimated combined federal + state rate applied to ISO gains. Not the same as tax withholding.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ISO Summary Cards -->
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-label">💸 Exercise Cost</div>
+                    <div class="summary-value" id="isoExerciseCost" onclick="copyToClipboard(this)" style="cursor: pointer;" title="Click to copy">$0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">📈 Gross Upside</div>
+                    <div class="summary-value" id="isoGrossUpside" onclick="copyToClipboard(this)" style="cursor: pointer;" title="Click to copy">$0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">🧾 Estimated Taxes</div>
+                    <div class="summary-value" id="isoEstimatedTaxes" onclick="copyToClipboard(this)" style="cursor: pointer;" title="Click to copy">$0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">✅ Net Upside</div>
+                    <div class="summary-value" id="isoNetUpside" onclick="copyToClipboard(this)" style="cursor: pointer;" title="Click to copy">$0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">📊 ROI Multiple</div>
+                    <div class="summary-value" id="isoROI" onclick="copyToClipboard(this)" style="cursor: pointer;" title="Click to copy">0x</div>
+                </div>
+            </div>
+
+            <div class="note">
+                <strong>Note:</strong> ISO (Incentive Stock Options) calculations are estimates. Actual tax treatment depends on holding periods, AMT implications, and individual circumstances. 
+                <br><br>
+                <strong>Key Considerations:</strong>
+                <ul style="margin-top: 10px; margin-left: 20px;">
+                    <li>Exercising ISOs may trigger Alternative Minimum Tax (AMT)</li>
+                    <li>Holding shares 2+ years from grant and 1+ year from exercise qualifies for favorable tax treatment</li>
+                    <li>Exercise cost must be paid upfront</li>
+                    <li>Consult a tax professional for personalized advice</li>
+                </ul>
+            </div>
+        </div>
+        <!-- End ISO Calculator -->
+
     </div>
 
     <script>
+        // Mode switching
+        let currentMode = 'rsu';
+
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            if (mode === 'rsu') {
+                document.getElementById('rsuCalculator').style.display = 'block';
+                document.getElementById('isoCalculator').style.display = 'none';
+                document.getElementById('rsuModeBtn').style.background = '#8feeff';
+                document.getElementById('rsuModeBtn').style.color = '#0a0a0a';
+                document.getElementById('isoModeBtn').style.background = 'transparent';
+                document.getElementById('isoModeBtn').style.color = 'var(--text-primary)';
+            } else {
+                document.getElementById('rsuCalculator').style.display = 'none';
+                document.getElementById('isoCalculator').style.display = 'block';
+                document.getElementById('rsuModeBtn').style.background = 'transparent';
+                document.getElementById('rsuModeBtn').style.color = 'var(--text-primary)';
+                document.getElementById('isoModeBtn').style.background = '#8feeff';
+                document.getElementById('isoModeBtn').style.color = '#0a0a0a';
+                calculateISO();
+            }
+            
+            localStorage.setItem('calculatorMode', mode);
+        }
+
+        // Tax Profile Handler
+        function applyTaxProfile() {
+            const taxProfile = document.getElementById('taxProfile').value;
+            const marginalTaxRateInput = document.getElementById('marginalTaxRate');
+            
+            const taxRates = {
+                'ca_high': 40,
+                'ca_married': 37,
+                'no_income_tax': 32,
+                'custom': ''
+            };
+            
+            if (taxProfile === 'custom') {
+                // Enable manual entry for custom
+                marginalTaxRateInput.disabled = false;
+                marginalTaxRateInput.value = '';
+                marginalTaxRateInput.placeholder = 'Enter custom rate';
+            } else if (taxProfile === '') {
+                // No profile selected
+                marginalTaxRateInput.disabled = true;
+                marginalTaxRateInput.value = '';
+                marginalTaxRateInput.placeholder = '37';
+            } else {
+                // Auto-fill based on profile
+                marginalTaxRateInput.disabled = true;
+                marginalTaxRateInput.value = taxRates[taxProfile];
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('taxProfile', taxProfile);
+            
+            // Recalculate
+            calculateISO();
+        }
+
+        // ISO Calculation
+        function calculateISO() {
+            // Cash compensation
+            const isoBaseSalary = parseFloat(document.getElementById('isoBaseSalary').value) || 0;
+            const isoBonusPercent = parseFloat(document.getElementById('isoBonusPercent').value) || 0;
+            const isoSignOnBonus = parseFloat(document.getElementById('isoSignOnBonus').value) || 0;
+            
+            // ISO values
+            const numberOfOptions = parseFloat(document.getElementById('numberOfOptions').value) || 0;
+            const strikePrice = parseFloat(document.getElementById('strikePrice').value) || 0;
+            const assumedSharePrice = parseFloat(document.getElementById('assumedSharePrice').value) || 0;
+            const marginalTaxRate = parseFloat(document.getElementById('marginalTaxRate').value) / 100 || 0;
+
+            // Cost to exercise
+            const exerciseCost = strikePrice * numberOfOptions;
+
+            // Gross upside (before tax)
+            const grossUpside = (assumedSharePrice - strikePrice) * numberOfOptions;
+
+            // Taxable spread and taxes
+            const taxableSpread = grossUpside;
+            const estimatedTaxes = taxableSpread * marginalTaxRate;
+
+            // Net upside (after tax)
+            const netUpside = grossUpside - estimatedTaxes;
+
+            // ROI multiple
+            const roiMultiple = exerciseCost > 0 ? (netUpside / exerciseCost) : 0;
+
+            // Update UI
+            document.getElementById('isoExerciseCost').textContent = '$' + exerciseCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            document.getElementById('isoGrossUpside').textContent = '$' + grossUpside.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            document.getElementById('isoEstimatedTaxes').textContent = '$' + estimatedTaxes.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            document.getElementById('isoNetUpside').textContent = '$' + netUpside.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            document.getElementById('isoROI').textContent = roiMultiple.toFixed(2) + 'x';
+        }
+
+        // Add event listeners for ISO inputs
+        document.addEventListener('DOMContentLoaded', function() {
+            const isoInputs = ['isoBaseSalary', 'isoBonusPercent', 'isoSignOnBonus', 'numberOfOptions', 'strikePrice', 'assumedSharePrice', 'marginalTaxRate'];
+            isoInputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', calculateISO);
+                    // Save to localStorage
+                    element.addEventListener('change', function() {
+                        localStorage.setItem(id, this.value);
+                    });
+                    // Load from localStorage
+                    const savedValue = localStorage.getItem(id);
+                    if (savedValue) {
+                        element.value = savedValue;
+                    }
+                }
+            });
+
+            // Load saved tax profile
+            const savedTaxProfile = localStorage.getItem('taxProfile');
+            if (savedTaxProfile) {
+                document.getElementById('taxProfile').value = savedTaxProfile;
+                applyTaxProfile();
+            }
+
+            // Load saved mode
+            const savedMode = localStorage.getItem('calculatorMode') || 'rsu';
+            switchMode(savedMode);
+        });
+
         // Copy/Download chart as PNG
         function copyChartToClipboard(chartId) {
             const canvas = document.getElementById(chartId);
